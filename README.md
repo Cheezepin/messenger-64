@@ -2,11 +2,13 @@
 Fork of the ultrasm64 repo by CrashOveride which includes the following commonly used patches: 
 - slope fix
 - exposed ceilings fix
+- Instant Input patch by Wiseguy (Removes all input lag caused by good emulators and plugins)
 - pole fix
 - Mario head skip
 - Peach letter cutscene skip
 - better extended boundaries by anonymous_moose
 - coordinate overflow fix by falcobuster
+  - If you're planning on making maps bigger than 2x bounds, change the value of `WORLD_SCALE` in `math_util.h` to a bigger value. `3.5f` should be enough for 4x boundaries but you can go up to `4.0f` if you somehow still get rendering glitches on your map.
 - water surface type patch by thecozies
 - platform displacement 2 by arthur. 
 - FPS counter (use the function `print_fps(x,y)` anywhere that runs code every frame)
