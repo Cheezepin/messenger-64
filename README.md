@@ -1,5 +1,19 @@
+# Messenger 64
+Fork of the ultrasm64-extbounds repo by Reonu which contains the following additions:
+- Wall Climbing (automatic when hitting a wall)
+- Gliding (hold A when in the air)
+- Rope Dart / Grappling Hook (press L)
+- "Cloud-stepping" (press A after jumping on or hooking on an enemy, indicated by the cloud beneath you)
+
+Most of the code for these mechanics is contained in src/game/behaviors/rope_dart.inc.c and src/game/mario_actions_airborne.c, with some minimal tweaks in src/game/interaction.c and src/game/mario_step.c.
+
+Most notably to any users is the array at the top of src/game/behaviors/rope_dart.inc.c. This array determines the objects Mario can hook onto with the rope dart, as well as how far away Mario needs to be from the object before the rope unhooks and how high above the object's origin the dart should snap to (if these things aren't already set by the object's hitbox).
+
+I don't have many plans to update this repository further. If you'd like me to fix a glaring issue, I can take a look into it, but don't have your hopes up too high.
+
+
 # UltraSM64-extbounds
-Fork of the ultrasm64 repo by CrashOveride which includes the following commonly used patches: 
+Fork of the ultrasm64 repo by CrashOveride which includes the following commonly used patches:
 - slope fix
 - exposed ceilings fix
 - Instant Input patch by Wiseguy (Removes all input lag caused by good emulators and plugins)
@@ -84,21 +98,6 @@ This is not recommended as it increases ROM size significantly, with little poin
 To switch to no compression, run make with the ``COMPRESS=uncomp`` argument.
 
 
-## FAQ
-
-Q: Why in the hell are you bundling your own build of ``ld``?
-
-A: Newer binutils (Like the one bundled with Ubuntu, 2.34) break linking with libultra builds due to local asm symbols.
-
-This puts me at a crossroads of either touching leaked code and requiring GCC, or just using an older linker that works just fine.
-
-I went with the latter.
-
-Thanks to "someone2639" for this hacky-ass idea
-
-Q: Will this allow me to use FlashRAM/Transfer Pak/microcode swapping/Other Cool N64 Features?
-
-A: Theoretically, all yes.
 
 ## Installation help
 

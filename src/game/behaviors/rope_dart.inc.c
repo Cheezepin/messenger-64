@@ -7,7 +7,7 @@ u32 targets[MAX_TARGETS][3] = {
    /*Behavior         Radius          Height*/
     {bhvGoomba,       0xFFFFFFFF,         25},
     {bhvPiranhaPlant, 0xFFFFFFFF, 0xFFFFFFFF},
-    {bhvBobomb,       200, 200},
+    {bhvBobomb,              200,        200},
     {bhvFlyGuy,       0xFFFFFFFF, 0xFFFFFFFF},
     {bhvStar,                200, 0xFFFFFFFF},
     {bhvSpawnedStar,         200, 0xFFFFFFFF},
