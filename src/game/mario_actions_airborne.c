@@ -401,8 +401,8 @@ u32 common_air_action_step(struct MarioState *m, u32 landAction, s32 animation, 
 #if ENABLE_RUMBLE
                 queue_rumble_data(5, 40);
 #endif
-                mario_bonk_reflection(m, FALSE);
-                m->faceAngle[1] += 0x8000;
+                //mario_bonk_reflection(m, FALSE);
+                //m->faceAngle[1] += 0x8000;
 
                 if (m->wall != NULL) {
                     set_mario_action(m, ACT_AIR_HIT_WALL, 0);
@@ -2061,11 +2061,13 @@ s32 act_wall_climb(struct MarioState *m) {
     //if(m->wall != 0) {
         struct Surface *oldWall = m->wall;
         vec3f_set(m->vel, 0.0f, 0.0f, 0.0f);
-        m->vel[0] = 80.0f * sins(m->faceAngle[1]);
-        m->vel[2] = 80.0f * coss(m->faceAngle[1]);
-        m->vel[0] += ((f32)gPlayer1Controller->rawStickX)*coss(atan2s(m->wall->normal.z, m->wall->normal.x)) / 1.5f;
-        m->vel[1] += ((f32)gPlayer1Controller->rawStickY) / 1.5f;
-        m->vel[2] -= ((f32)gPlayer1Controller->rawStickX)*sins(atan2s(m->wall->normal.z, m->wall->normal.x)) / 1.5f;
+        if(m->wall != 0) {
+            m->vel[0] = 80.0f * sins(m->faceAngle[1]);
+            m->vel[2] = 80.0f * coss(m->faceAngle[1]);
+            m->vel[0] += ((f32)gPlayer1Controller->rawStickX)*coss(atan2s(m->wall->normal.z, m->wall->normal.x)) / 1.5f;
+            m->vel[1] += ((f32)gPlayer1Controller->rawStickY) / 1.5f;
+            m->vel[2] -= ((f32)gPlayer1Controller->rawStickX)*sins(atan2s(m->wall->normal.z, m->wall->normal.x)) / 1.5f;
+        }
         set_mario_anim_with_accel(m, MARIO_ANIM_CLIMB_UP_POLE, (absi((s32)m->vel[1]) * 0x10000) / 10);
         vec3f_set(intendedPos,  m->pos[0] + m->vel[0] / 4.0f, m->pos[1] + m->vel[1] / 4.0f, m->pos[2] + m->vel[2] / 4.0f);
         vec3f_copy(oldPos, m->pos);

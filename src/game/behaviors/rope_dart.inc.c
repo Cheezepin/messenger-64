@@ -2,15 +2,22 @@
 extern s32 gQuarterStepResult;
 extern s32 gCloudstep;
 
-#define MAX_TARGETS 6
+#define MAX_TARGETS 13
 u32 targets[MAX_TARGETS][3] = {
    /*Behavior         Radius          Height*/
-    {bhvGoomba,       0xFFFFFFFF,         25},
-    {bhvPiranhaPlant, 0xFFFFFFFF, 0xFFFFFFFF},
-    {bhvBobomb,              200,        200},
-    {bhvFlyGuy,       0xFFFFFFFF, 0xFFFFFFFF},
-    {bhvStar,                200, 0xFFFFFFFF},
-    {bhvSpawnedStar,         200, 0xFFFFFFFF},
+    {bhvGoomba,           0xFFFFFFFF,         25},
+    {bhvPiranhaPlant,     0xFFFFFFFF, 0xFFFFFFFF},
+    {bhvBobomb,                  200,         50},
+    {bhvFlyGuy,           0xFFFFFFFF, 0xFFFFFFFF},
+    {bhvStar,                    200, 0xFFFFFFFF},
+    {bhvSpawnedStar,             200, 0xFFFFFFFF},
+    {bhvSpawnedStarNoLevelExit,  200, 0xFFFFFFFF},
+    {bhvUkikiCageStar,           200, 0xFFFFFFFF},
+    {bhvGrandStar,               300, 0xFFFFFFFF},
+    {bhvStarSpawnCoordinates,    200, 0xFFFFFFFF},
+    {bhvHiddenRedCoinStar,       200, 0xFFFFFFFF},
+    {bhvBowserCourseRedCoinStar, 200, 0xFFFFFFFF},
+    {bhvHiddenStar,              200, 0xFFFFFFFF},
 };
 
 struct Object *closestObject;
@@ -88,7 +95,7 @@ void bhv_rope_dart_update(void) {
                     if(targets[objectType][2] != 0xFFFFFFFF) {
                         height = (f32)(targets[objectType][2]);
                     } else if(closestObject->hitboxHeight != 0.0f) {
-                        height = closestObject->hitboxHeight;
+                        height = closestObject->hitboxHeight / 2.0f;
                     } else {
                         height = 100.0f;
                     }
