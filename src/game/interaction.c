@@ -18,11 +18,14 @@
 #include "memory.h"
 #include "obj_behaviors.h"
 #include "object_helpers.h"
+#include "object_list_processor.h"
 #include "save_file.h"
 #include "seq_ids.h"
 #include "sm64.h"
 #include "sound_init.h"
 #include "rumble_init.h"
+
+extern gCloudstep;
 
 #define INT_GROUND_POUND_OR_TWIRL (1 << 0) // 0x01
 #define INT_PUNCH                 (1 << 1) // 0x02
@@ -1366,10 +1369,15 @@ u32 interact_hit_from_below(struct MarioState *m, UNUSED u32 interactType, struc
 
 u32 interact_bounce_top(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
     u32 interaction;
+    f32 dist;
     if (m->flags & MARIO_METAL_CAP) {
         interaction = INT_FAST_ATTACK_OR_SHELL;
     } else {
         interaction = determine_interaction(m, o);
+    }
+
+    if(gMarioState->action == ACT_JUMP && obj_find_nearest_object_with_behavior(gMarioObject, bhvRopeDart, &dist)) {
+        //interaction = INT_HIT_FROM_ABOVE;
     }
 
     if (interaction & INT_ATTACK_NOT_FROM_BELOW) {
@@ -1390,6 +1398,7 @@ u32 interact_bounce_top(struct MarioState *m, UNUSED u32 interactType, struct Ob
             } else {
                 bounce_off_object(m, o, 30.0f);
             }
+            gCloudstep = 1;
         }
     } else if (take_damage_and_knock_back(m, o)) {
         return TRUE;

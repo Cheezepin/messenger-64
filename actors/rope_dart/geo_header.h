@@ -1,0 +1,18 @@
+extern const GeoLayout rope_dart_geo[];
+extern Lights1 rope_dart_f3d_material_001_lights;
+extern Lights1 rope_dart_f3d_material_lights;
+extern u8 rope_dart_xx_21_ci8[];
+extern u8 rope_dart_xx_21_ci8_pal_rgba16[];
+extern u8 rope_dart_rope_ci8[];
+extern u8 rope_dart_rope_ci8_pal_rgba16[];
+extern Vtx rope_dart_root_mesh_layer_1_vtx_0[60];
+extern Gfx rope_dart_root_mesh_layer_1_tri_0[];
+extern Vtx rope_dart_rope_mesh_layer_1_vtx_0[96];
+extern Gfx rope_dart_rope_mesh_layer_1_tri_0[];
+extern Gfx mat_rope_dart_f3d_material_001[];
+extern Gfx mat_revert_rope_dart_f3d_material_001[];
+extern Gfx mat_rope_dart_f3d_material[];
+extern Gfx mat_revert_rope_dart_f3d_material[];
+extern Gfx rope_dart_root_mesh_layer_1[];
+extern Gfx rope_dart_rope_mesh_layer_1[];
+extern Gfx rope_dart_material_revert_render_settings[];

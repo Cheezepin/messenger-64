@@ -1,5 +1,7 @@
 // water_splashes_and_waves.c.inc
 
+extern s32 gCloudstep;
+
 // Water droplets from Mario jumping in a pool of water.
 struct WaterDropletParams sWaterSplashDropletParams = {
     /* Flags */ WATER_DROPLET_FLAG_RAND_ANGLE,
@@ -129,5 +131,13 @@ void bhv_wave_trail_shrink(void) {
             o->oWaveTrailSize = 0.0f;
         o->header.gfx.scale[0] = o->oWaveTrailSize;
         o->header.gfx.scale[2] = o->oWaveTrailSize;
+    }
+}
+
+void bhv_cloudstep_loop(void) {
+    obj_copy_pos(o, gMarioObject);
+    o->oPosY -= 30;
+    if (gCloudstep == 0) {
+        obj_mark_for_deletion(o);
     }
 }

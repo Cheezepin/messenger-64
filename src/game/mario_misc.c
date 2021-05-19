@@ -428,7 +428,7 @@ Gfx *geo_mario_head_rotation(s32 callContext, struct GraphNode *node, UNUSED Mat
  * Switch between hand models.
  * Possible options are described in the MarioHandGSCId enum.
  */
-Gfx *geo_switch_mario_hand(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+Gfx *geo_switch_mario_hand(s32 callContext, struct GraphNode *node, Mat4 *mtx) {
     struct GraphNodeSwitchCase *switchCase = (struct GraphNodeSwitchCase *) node;
     struct MarioBodyState *bodyState = &gBodyStates[0];
 
@@ -548,6 +548,9 @@ Gfx *geo_switch_mario_hand_grab_pos(s32 callContext, struct GraphNode *b, Mat4 *
     struct GraphNodeHeldObject *asHeldObj = (struct GraphNodeHeldObject *) b;
     Mat4 *curTransform = mtx;
     struct MarioState *marioState = &gMarioStates[asHeldObj->playerIndex];
+    Mat4 posMtx;
+    f32 dist;
+    struct Object *rope;
 
     if (callContext == GEO_CONTEXT_RENDER) {
         asHeldObj->objNode = NULL;
@@ -569,6 +572,33 @@ Gfx *geo_switch_mario_hand_grab_pos(s32 callContext, struct GraphNode *b, Mat4 *
                     break;
             }
         }
+
+                rope = obj_find_nearest_object_with_behavior(gMarioObject, bhvRopeDart, &dist);
+                if(rope != 0) {
+                    struct Object *particle = spawn_object_at_origin(gMarioObject, 0, MODEL_NONE, bhvSmallParticle);
+                    create_transformation_from_matrices(posMtx, *mtx, *gCurGraphNodeCamera->matrixPtr);
+
+                    particle->oPosX = posMtx[3][0];
+                    particle->oPosY = posMtx[3][1];
+                    particle->oPosZ = posMtx[3][2];
+                    //rope->oFaceAngleYaw = gMarioState->faceAngle[1];
+                    rope->oFaceAngleYaw = obj_angle_to_object(particle, rope);
+                    rope->oFaceAnglePitch = -obj_angle_to_object_pitch(particle, rope);
+                    //rope->oPosX = posMtx[3][0];
+                    //rope->oPosY = posMtx[3][1];
+                    //rope->oPosZ = posMtx[3][2];
+                } else if(gPlayer1Controller->buttonPressed == L_TRIG) {
+                    create_transformation_from_matrices(posMtx, *mtx, *gCurGraphNodeCamera->matrixPtr);
+                
+                    rope = spawn_object_at_origin(gMarioObject, 0, MODEL_ROPE_DART, bhvRopeDart);
+                    rope->oMoveAngleYaw = rope->oFaceAngleYaw = gMarioState->faceAngle[1];
+                    if(gMarioState->action == ACT_WALL_CLIMB) {
+                        rope->oMoveAngleYaw = rope->oFaceAngleYaw += 0x8000;
+                    }
+                    rope->oPosX = posMtx[3][0];
+                    rope->oPosY = posMtx[3][1];
+                    rope->oPosZ = posMtx[3][2];
+                }
     } else if (callContext == GEO_CONTEXT_HELD_OBJ) {
         // ! The HOLP is set here, which is why it only updates when the held object is drawn.
         // This is why it won't update during a pause buffered hitstun or when the camera is very far
@@ -646,4 +676,15 @@ Gfx *geo_mirror_mario_backface_culling(s32 callContext, struct GraphNode *node, 
         asGenerated->fnNode.node.flags = (asGenerated->fnNode.node.flags & 0xFF) | (LAYER_OPAQUE << 8);
     }
     return gfx;
+}
+
+Gfx *geo_rope_dart_scale(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeScaleBetter *scaleNode = (struct GraphNodeScaleBetter *) node->next;
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        scaleNode->scaleX = 1.0f;
+        scaleNode->scaleY = 1.0f;
+        scaleNode->scaleZ = (((struct Object *)gCurGraphNodeObject)->oDistanceToMario) / 875.0f;
+    }
+    return NULL;
 }

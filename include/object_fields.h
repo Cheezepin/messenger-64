@@ -1157,4 +1157,6 @@
 #define /*0x0FC*/ oYoshiChosenHome OBJECT_FIELD_S32(0x1D)
 #define /*0x100*/ oYoshiTargetYaw  OBJECT_FIELD_S32(0x1E)
 
+#define /*0x170*/ oWall                   OBJECT_FIELD_SURFACE(0x3A)
+
 #endif // OBJECT_FIELDS_H

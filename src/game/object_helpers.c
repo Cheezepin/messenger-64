@@ -391,6 +391,21 @@ s16 obj_angle_to_object(struct Object *obj1, struct Object *obj2) {
     return angle;
 }
 
+s16 obj_angle_to_object_pitch(struct Object *obj1, struct Object *obj2) {
+    f32 z1, x1, z2, x2, y1, y2;
+    s16 angle;
+    f32 dist;
+
+    z1 = obj1->oPosZ; z2 = obj2->oPosZ;
+    x1 = obj1->oPosX; x2 = obj2->oPosX;
+    y1 = obj1->oPosY; y2 = obj2->oPosY;
+
+    dist = sqrtf(POW2(z2 - z1) + POW2(x2 - x1));
+
+    angle = atan2s(dist, y2 - y1);
+    return angle;
+}
+
 s16 obj_turn_toward_object(struct Object *obj, struct Object *target, s16 angleIndex, s16 turnAmount) {
     f32 a, b, c, d;
     UNUSED s32 unused;
@@ -851,6 +866,33 @@ struct Object *cur_obj_find_nearest_object_with_behavior(const BehaviorScript *b
         if (obj->behavior == behaviorAddr) {
             if (obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj != o) {
                 f32 objDist = dist_between_objects(o, obj);
+                if (objDist < minDist) {
+                    closestObj = obj;
+                    minDist = objDist;
+                }
+            }
+        }
+        obj = (struct Object *) obj->header.next;
+    }
+
+    *dist = minDist;
+    return closestObj;
+}
+
+struct Object *obj_find_nearest_object_with_behavior(struct Object *curObj, const BehaviorScript *behavior, f32 *dist) {
+    uintptr_t *behaviorAddr = segmented_to_virtual(behavior);
+    struct Object *closestObj = NULL;
+    struct Object *obj;
+    struct ObjectNode *listHead;
+    f32 minDist = 0x20000;
+
+    listHead = &gObjectLists[get_object_list_from_behavior(behaviorAddr)];
+    obj = (struct Object *) listHead->next;
+
+    while (obj != (struct Object *) listHead) {
+        if (obj->behavior == behaviorAddr) {
+            if (obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj != curObj) {
+                f32 objDist = dist_between_objects(curObj, obj);
                 if (objDist < minDist) {
                     closestObj = obj;
                     minDist = objDist;
@@ -1711,6 +1753,9 @@ s32 cur_obj_resolve_wall_collisions(void) {
             o->oPosY = collisionData.y;
             o->oPosZ = collisionData.z;
             wall = collisionData.walls[collisionData.numWalls - 1];
+            if(gCurrentObject->behavior == segmented_to_virtual(bhvRopeDart)) {
+                o->oWall = wall;
+            }
 
             o->oWallAngle = atan2s(wall->normal.z, wall->normal.x);
             if (abs_angle_diff(o->oWallAngle, o->oMoveAngleYaw) > 0x4000) {

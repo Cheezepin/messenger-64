@@ -14,6 +14,8 @@
 #include "surface_terrains.h"
 #include "macros.h"
 
+#define POW2(x) ((x) * (x))
+
 // Crash handler enhancement
 #ifdef CRASH_SCREEN_INCLUDED
 #define DEBUG_ASSERT(exp) do { if (!(exp)) _n64_assert(__FILE__, __LINE__, #exp, 1); } while (0)
@@ -298,6 +300,8 @@
 #define ACT_GETTING_BLOWN              0x010208B8 // (0x0B8 | ACT_FLAG_AIR | ACT_FLAG_INVULNERABLE | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
 #define ACT_THROWN_FORWARD             0x010208BD // (0x0BD | ACT_FLAG_AIR | ACT_FLAG_INVULNERABLE | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
 #define ACT_THROWN_BACKWARD            0x010208BE // (0x0BE | ACT_FLAG_AIR | ACT_FLAG_INVULNERABLE | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
+#define ACT_WALL_CLIMB                 0x0300088C
+#define ACT_PARACHUTE                  0x0300088F
 
 // group 0x0C0: submerged actions
 #define ACT_WATER_IDLE                 0x380022C0 // (0x0C0 | ACT_FLAG_STATIONARY | ACT_FLAG_SWIMMING | ACT_FLAG_PAUSE_EXIT | ACT_FLAG_SWIMMING_OR_FLYING | ACT_FLAG_WATER_OR_TEXT)

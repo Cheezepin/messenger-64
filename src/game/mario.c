@@ -35,6 +35,8 @@
 
 u32 unused80339F10;
 s8 filler80339F1C[20];
+s32 gCloudstep;
+extern s32 aProned;
 
 /**************************************************
  *                    ANIMATIONS                  *
@@ -1715,6 +1717,7 @@ void func_sh_8025574C(void) {
  * Main function for executing Mario's behavior.
  */
 s32 execute_mario_action(UNUSED struct Object *o) {
+    f32 dist;
     s32 inLoop = TRUE;
 
     if (gMarioState->action) {
@@ -1764,12 +1767,28 @@ s32 execute_mario_action(UNUSED struct Object *o) {
             }
         }
 
+        if((gMarioState->action & ACT_GROUP_MASK) != ACT_GROUP_AIRBORNE) {
+            gCloudstep = 0;
+            aProned = 0;
+        }
+
         sink_mario_in_quicksand(gMarioState);
         squish_mario_model(gMarioState);
         set_submerged_cam_preset_and_spawn_bubbles(gMarioState);
         update_mario_health(gMarioState);
         update_mario_info_for_cam(gMarioState);
         mario_update_hitbox_and_cap_model(gMarioState);
+
+        if(gPlayer1Controller->buttonPressed == A_BUTTON && gCloudstep == 1) {
+            set_mario_action(gMarioState, ACT_DOUBLE_JUMP, 0);
+            gMarioState->vel[1] = 45.0f;
+            gCloudstep = 0;
+            aProned = 0;
+        }
+
+        if(gCloudstep == 1 && !(obj_find_nearest_object_with_behavior(gMarioObject, bhvCloudstepIndicator, &dist))) {
+            spawn_object(gMarioObject, MODEL_IDLE_WATER_WAVE, bhvCloudstepIndicator);
+        }
 
         // Both of the wind handling portions play wind audio only in
         // non-Japanese releases.

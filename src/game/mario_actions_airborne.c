@@ -14,6 +14,11 @@
 #include "save_file.h"
 #include "rumble_init.h"
 
+s32 aProned;
+extern s32 gCloudstep;
+
+extern f32 find_floor_height(f32 x, f32 y, f32 z);
+
 void play_flip_sounds(struct MarioState *m, s16 frame1, s16 frame2, s16 frame3) {
     s32 animFrame = m->marioObj->header.gfx.animInfo.animFrame;
     if (animFrame == frame1 || animFrame == frame2 || animFrame == frame3) {
@@ -193,7 +198,7 @@ void update_air_with_turn(struct MarioState *m) {
             intendedMag = m->intendedMag / 32.0f;
 
             m->forwardVel += 1.5f * coss(intendedDYaw) * intendedMag;
-            m->faceAngle[1] += 512.0f * sins(intendedDYaw) * intendedMag;
+            m->faceAngle[1] += 2048.0f * sins(intendedDYaw) * intendedMag;
         }
 
         //! Uncapped air speed. Net positive when moving forward.
@@ -367,18 +372,26 @@ void update_flying(struct MarioState *m) {
 u32 common_air_action_step(struct MarioState *m, u32 landAction, s32 animation, u32 stepArg) {
     u32 stepResult;
 
-    update_air_without_turn(m);
+    //update_air_without_turn(m);
+    update_air_with_turn(m);
 
     stepResult = perform_air_step(m, stepArg);
     switch (stepResult) {
         case AIR_STEP_NONE:
-            set_mario_animation(m, animation);
+            if((gPlayer1Controller->buttonDown & A_BUTTON) == 0) {
+                aProned = 1;
+            }
+            if((gPlayer1Controller->buttonDown & A_BUTTON) && aProned == 1 && gCloudstep == 0) {
+                set_mario_action(m, ACT_PARACHUTE, 0);
+            }
+                set_mario_animation(m, animation);
             break;
 
         case AIR_STEP_LANDED:
             if (!check_fall_damage_or_get_stuck(m, ACT_HARD_BACKWARD_GROUND_KB)) {
                 set_mario_action(m, landAction, 0);
             }
+            aProned = 0;
             break;
 
         case AIR_STEP_HIT_WALL:
@@ -2039,6 +2052,77 @@ s32 act_special_triple_jump(struct MarioState *m) {
     return FALSE;
 }
 
+Vec3f ledgeHangPos;
+s32 act_wall_climb(struct MarioState *m) {
+    Vec3f intendedPos;
+    Vec3f oldPos;
+    f32 i;
+
+    //if(m->wall != 0) {
+        struct Surface *oldWall = m->wall;
+        vec3f_set(m->vel, 0.0f, 0.0f, 0.0f);
+        m->vel[0] = 80.0f * sins(m->faceAngle[1]);
+        m->vel[2] = 80.0f * coss(m->faceAngle[1]);
+        m->vel[0] += ((f32)gPlayer1Controller->rawStickX)*coss(atan2s(m->wall->normal.z, m->wall->normal.x)) / 1.5f;
+        m->vel[1] += ((f32)gPlayer1Controller->rawStickY) / 1.5f;
+        m->vel[2] -= ((f32)gPlayer1Controller->rawStickX)*sins(atan2s(m->wall->normal.z, m->wall->normal.x)) / 1.5f;
+        set_mario_anim_with_accel(m, MARIO_ANIM_CLIMB_UP_POLE, (absi((s32)m->vel[1]) * 0x10000) / 10);
+        vec3f_set(intendedPos,  m->pos[0] + m->vel[0] / 4.0f, m->pos[1] + m->vel[1] / 4.0f, m->pos[2] + m->vel[2] / 4.0f);
+        vec3f_copy(oldPos, m->pos);
+        m->wall = NULL;
+        perform_air_quarter_step(m, intendedPos, 0);
+        if(m->pos[1] - m->floorHeight < 25.0f) {
+            m->pos[1] = m->floorHeight;
+            set_mario_action(m, ACT_IDLE, 0);
+        }
+        
+        if(m->wall == NULL) {
+            f32 ledgeFloorHeight;
+            vec3f_set(ledgeHangPos, m->pos[0] + (50.0f*sins(m->faceAngle[1])), m->pos[1] + 100.0f, m->pos[2] + (50.0f*coss(m->faceAngle[1])));
+            ledgeFloorHeight = find_floor_height(ledgeHangPos[0], ledgeHangPos[1], ledgeHangPos[2]);
+            vec3f_copy(m->pos, oldPos);
+            if(m->pos[1] - ledgeFloorHeight < 0.0f && m->pos[1] - ledgeFloorHeight > -100.0f) {
+                vec3f_set(m->pos, ledgeHangPos[0], ledgeFloorHeight, ledgeHangPos[2]);
+                set_mario_action(m, ACT_LEDGE_GRAB, 0);
+            } else {
+                m->wall = oldWall;
+            }
+        } else {
+            m->faceAngle[1] = atan2s(m->wall->normal.z, m->wall->normal.x) + 0x8000;
+        }
+        vec3f_copy(m->marioObj->header.gfx.pos, m->pos);
+        vec3s_set(m->marioObj->header.gfx.angle, 0, m->faceAngle[1], 0);
+
+        if(gPlayer1Controller->buttonPressed == A_BUTTON) {
+            m->faceAngle[1] += 0x8000;
+            m->forwardVel = 15.0f;
+            m->vel[1] = 10.0f;
+            set_mario_action(m, ACT_WALL_KICK_AIR, 0);
+        }
+    //} else {
+    //    set_mario_action(m, ACT_JUMP, 0);
+    //}
+
+    aProned = 0;
+
+    return FALSE;
+}
+
+s32 act_parachute(struct MarioState *m) {
+    common_air_action_step(m, ACT_DIVE_SLIDE, MARIO_ANIM_FLY_FROM_CANNON,
+                           AIR_STEP_CHECK_LEDGE_GRAB | AIR_STEP_CHECK_HANG);
+    if(m->vel[1] < -16.0f) {
+        m->vel[1] = -16.0f;
+    }
+    set_mario_animation(m, MARIO_ANIM_FLY_FROM_CANNON);
+    aProned = 0;
+    if((gPlayer1Controller->buttonDown & A_BUTTON) == 0) {
+        set_mario_action(m, ACT_FREEFALL, 0);
+    }
+
+    return FALSE;
+}
+
 s32 check_common_airborne_cancels(struct MarioState *m) {
     if (m->pos[1] < m->waterLevel - 100) {
         return set_water_plunge_action(m);
@@ -2112,6 +2196,8 @@ s32 mario_execute_airborne_action(struct MarioState *m) {
         case ACT_RIDING_HOOT:          cancel = act_riding_hoot(m);          break;
         case ACT_TOP_OF_POLE_JUMP:     cancel = act_top_of_pole_jump(m);     break;
         case ACT_VERTICAL_WIND:        cancel = act_vertical_wind(m);        break;
+        case ACT_WALL_CLIMB:           cancel = act_wall_climb(m);           break;
+        case ACT_PARACHUTE:            cancel = act_parachute(m);            break;
     }
     /* clang-format on */
 

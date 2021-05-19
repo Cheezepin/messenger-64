@@ -395,6 +395,7 @@ s32 perform_air_quarter_step(struct MarioState *m, Vec3f intendedPos, u32 stepAr
     f32 ceilHeight;
     f32 floorHeight;
     f32 waterLevel;
+    f32 wallRadius;
 
     vec3f_copy(nextPos, intendedPos);
 
@@ -607,6 +608,7 @@ void apply_vertical_wind(struct MarioState *m) {
     }
 }
 
+s32 gQuarterStepResult;
 s32 perform_air_step(struct MarioState *m, u32 stepArg) {
     Vec3f intendedPos;
     s32 i;
@@ -621,6 +623,12 @@ s32 perform_air_step(struct MarioState *m, u32 stepArg) {
         intendedPos[2] = m->pos[2] + m->vel[2] / 4.0f;
 
         quarterStepResult = perform_air_quarter_step(m, intendedPos, stepArg);
+
+        if(quarterStepResult == AIR_STEP_HIT_WALL) {
+            gQuarterStepResult = AIR_STEP_HIT_WALL;
+            set_mario_action(m, ACT_WALL_CLIMB, 0);
+            break;
+        }
 
         //! On one qf, hit OOB/ceil/wall to store the 2 return value, and continue
         // getting 0s until your last qf. Graze a wall on your last qf, and it will

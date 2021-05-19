@@ -154,7 +154,7 @@ void check_destructive_object_collision(void) {
     struct Object *sp18 = (struct Object *) sp1C->header.next;
 
     while (sp18 != sp1C) {
-        if (sp18->oDistanceToMario < 2000.0f && !(sp18->activeFlags & ACTIVE_FLAG_UNK9)) {
+        if (sp18->oDistanceToMario < 200000.0f && !(sp18->activeFlags & ACTIVE_FLAG_UNK9)) {
             check_collision_in_list(sp18, (struct Object *) sp18->header.next, sp1C);
             check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_GENACTOR].next,
                           (struct Object *) &gObjectLists[OBJ_LIST_GENACTOR]);

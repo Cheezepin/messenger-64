@@ -6106,4 +6106,26 @@ const BehaviorScript bhvIntroScene[] = {
     END_LOOP(),
 };
 
+const BehaviorScript bhvRopeDart[] = {
+    BEGIN(OBJ_LIST_DEFAULT),
+    OR_INT(oFlags, (OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE)),
+    SET_HOME(),
+    BEGIN_LOOP(),
+        CALL_NATIVE(bhv_rope_dart_update),
+    END_LOOP(),
+};
+
+const BehaviorScript bhvCloudstepIndicator[] = {
+    BEGIN(OBJ_LIST_DEFAULT),
+    OR_INT(oFlags, OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE),
+    SET_INT(oFaceAnglePitch, 0),
+    SET_INT(oFaceAngleYaw, 0),
+    SET_INT(oFaceAngleRoll, 0),
+    SET_INT(oAnimState, 0),
+    BEGIN_LOOP(),
+        ADD_INT(oAnimState, 1),
+        CALL_NATIVE(bhv_cloudstep_loop),
+    END_LOOP(),
+};
+
 

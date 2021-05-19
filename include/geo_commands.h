@@ -399,6 +399,11 @@
 #define GEO_SCALE(layer, scale) \
     CMD_BBH(0x1D, layer, 0x0000), \
     CMD_W(scale)
+#define GEO_SCALE_BETTER(layer, scaleX, scaleY, scaleZ) \
+    CMD_BBH(0x1E, layer, 0x0000), \
+    CMD_W(scaleX),\
+    CMD_W(scaleY),\
+    CMD_W(scaleZ)
 #define GEO_SCALE_WITH_DL(layer, scale, displayList) \
     CMD_BBH(0x1D, (layer | 0x80), 0x0000), \
     CMD_W(scale), \
@@ -407,9 +412,9 @@
 /**
  * 0x1E: No operation
  */
-#define GEO_NOP_1E() \
-    CMD_BBH(0x1E, 0x00, 0x0000), \
-    CMD_HH(0x0000, 0x0000)
+// #define GEO_NOP_1E() \
+//     CMD_BBH(0x1E, 0x00, 0x0000), \
+//     CMD_HH(0x0000, 0x0000)
 
 /**
  * 0x1F: No operation
