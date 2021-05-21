@@ -2,7 +2,7 @@
 extern s32 gQuarterStepResult;
 extern s32 gCloudstep;
 
-#define MAX_TARGETS 13
+#define MAX_TARGETS 16
 u32 targets[MAX_TARGETS][3] = {
    /*Behavior         Radius          Height*/
     {bhvGoomba,           0xFFFFFFFF,         25},
@@ -18,6 +18,9 @@ u32 targets[MAX_TARGETS][3] = {
     {bhvHiddenRedCoinStar,       200, 0xFFFFFFFF},
     {bhvBowserCourseRedCoinStar, 200, 0xFFFFFFFF},
     {bhvHiddenStar,              200, 0xFFFFFFFF},
+    {bhvScuttlebug,       0xFFFFFFFF, 0xFFFFFFFF},
+    {bhvSmallBully,       0xFFFFFFFF, 0xFFFFFFFF},
+    {bhvBigBully,         0xFFFFFFFF, 0xFFFFFFFF},
 };
 
 struct Object *closestObject;
